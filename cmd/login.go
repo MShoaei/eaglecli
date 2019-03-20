@@ -19,6 +19,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/spf13/viper"
+
 	"github.com/shurcooL/graphql"
 	"github.com/spf13/cobra"
 )
@@ -67,5 +69,13 @@ func login(cmd *cobra.Command, args []string) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(q.TokenAuth)
+	viper.Set("authorization", q.TokenAuth)
+	if err := viper.WriteConfig(); err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("Logged in!")
+	fmt.Println("---------")
+	fmt.Println("Go on and destroy the world...or save it!")
+	fmt.Println("WHO CARES?!")
 }

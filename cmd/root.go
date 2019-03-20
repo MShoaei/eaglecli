@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -51,7 +52,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.eagleCLI.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.eagleCLI/eagleCLI.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -71,9 +72,13 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".eagleCLI" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".eagleCLI")
+		if err := os.Mkdir(path.Join(home, ".eagleCLI"), os.ModePerm); err != nil && !os.IsExist(err) {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		viper.AddConfigPath(path.Join(home, ".eagleCLI"))
+		viper.SetConfigName("eagleCLI")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
