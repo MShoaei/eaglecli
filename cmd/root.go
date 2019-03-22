@@ -20,6 +20,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/spf13/afero"
+
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -72,9 +74,12 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		if err := os.Mkdir(path.Join(home, ".eagleCLI"), os.ModePerm); err != nil && !os.IsExist(err) {
-			fmt.Println(err)
-			os.Exit(1)
+		fs := afero.NewOsFs()
+		if exists, _ := afero.DirExists(fs, path.Join(home, ".eagleCLI")); !exists {
+			fs.MkdirAll(path.Join(home, ".eagleCLI"), os.ModePerm)
+		}
+		if exists, _ := afero.Exists(fs, path.Join(home, ".eagleCLI", "eagleCLI.yaml")); !exists {
+			fs.Create(path.Join(home, ".eagleCLI", "eagleCLI.yaml"))
 		}
 
 		viper.AddConfigPath(path.Join(home, ".eagleCLI"))
