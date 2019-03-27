@@ -77,7 +77,7 @@ func list(cmd *cobra.Command, args []string) {
 				AccessToken: viper.GetString("authorization"),
 			})
 		httpclient := oauth2.NewClient(context.Background(), src)
-		client := graphql.NewClient("http://localhost:9990/api", httpclient)
+		client := graphql.NewClient("http://localhost:3002/api", httpclient)
 
 		var q struct {
 			Bots []struct {
@@ -124,7 +124,7 @@ func list(cmd *cobra.Command, args []string) {
 
 		t := gotabulate.Create(allBots)
 		t.SetWrapStrings(true)
-		t.SetMaxCellSize(14)
+		t.SetMaxCellSize(18)
 		t.SetAlign("center")
 		t.SetHeaders([]string{
 			"index",

@@ -54,7 +54,7 @@ func init() {
 
 func login(cmd *cobra.Command, args []string) {
 
-	client := graphql.NewClient("http://localhost:9990/api", nil)
+	client := graphql.NewClient("http://localhost:3002/api", nil)
 
 	var q struct {
 		TokenAuth graphql.String `graphql:"tokenAuth(username: $username, password: $password)"`
